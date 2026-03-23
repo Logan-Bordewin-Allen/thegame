@@ -237,7 +237,6 @@ export function endTurn(playerId: string): void {
 
   // Draw back up to 7 cards
   const cardsToDraw = 7 - player.hand.length
-  const cardsToDraw = 5 - player.hand.length
   if (cardsToDraw > 0) drawCards(playerId, cardsToDraw)
 
   nextTurn()
