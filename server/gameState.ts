@@ -25,6 +25,7 @@ function makeId(): string {
   return `card_${cardCounter}`
 }
 
+
 export function buildStarterDeck(): Card[] {
   return [
     // Components — 3 of each
@@ -40,18 +41,24 @@ export function buildStarterDeck(): Card[] {
     { id: makeId(), kind: 'component', component: 'stardust' },
     { id: makeId(), kind: 'component', component: 'stardust' },
     { id: makeId(), kind: 'component', component: 'stardust' },
-    // Two of each spell
-    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 1, components: ['fire', 'wax'] },
-    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 1, components: ['fire', 'wax'] },
-    { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
-    { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
   ]
 }
 
+// Building Spellbook
+let spellcount = 0
+function spellID(): string{
+    spellcount++
+    return ""+spellcount
+}
+
+export function buildStarterBook(): SpellCard[]{
+    return [
+    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 0, components: ['fire', 'wax'] },
+    { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
+    { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
+    { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
+    ]
+} 
 export function shuffle(deck: Card[]): Card[] {
   const d = [...deck]
   for (let i = d.length - 1; i > 0; i--) {
@@ -74,6 +81,7 @@ export interface Player {
   deck: Card[]
   hand: Card[]
   discard: Card[]
+  spellbook: SpellCard[]
 }
 
 // The full game state
@@ -99,6 +107,7 @@ export const gameState: GameState = {
 // Add a player to the game
 export function addPlayer(id: string, name: string): void {
   const deck = shuffle(buildStarterDeck())
+  const spellbook = buildStarterBook()
   const hand = deck.splice(0, 5)
 
   gameState.players[id] = {
@@ -109,7 +118,8 @@ export function addPlayer(id: string, name: string): void {
     actionPoints: 1,
     deck,
     hand,
-    discard: []
+    discard: [],
+    spellbook
   }
   gameState.history[id] = []
 }
@@ -124,7 +134,7 @@ export function startGame(): void {
   const playerIds = Object.keys(gameState.players)
   if (playerIds.length < 2) return // need at least 2 players
   gameState.phase = 'playing'
-  gameState.currentTurn = playerIds[0] ?? null  // ?? null handles the undefined
+  gameState.currentTurn = playerIds[Math.floor(Math.random() * playerIds.length)] ?? null  // ?? null handles the undefined
 }
 
 // Advance to the next player's turn
@@ -157,8 +167,8 @@ export function playSpell(playerId: string, spellCardId: string, componentCardId
   const player = gameState.players[playerId]
   if (player === undefined) return false
 
-  // Find the spell card in hand
-  const spellCard = player.hand.find(c => c.id === spellCardId)
+  // Find the spell card in spellbook
+  const spellCard = player.spellbook.find(c => c.id === spellCardId)
   if (spellCard === undefined || spellCard.kind !== 'spell') return false
 
   // Check player has enough action points
@@ -208,7 +218,7 @@ function resolveSpell(spell: SpellType, casterId: string): void {
       break
 
     case 'tome':
-      drawCards(casterId, 4)
+      drawCards(casterId, 3)
       break
 
     case 'firebolt':
@@ -229,14 +239,17 @@ function resolveSpell(spell: SpellType, casterId: string): void {
 
 export function endTurn(playerId: string): void {
   const player = gameState.players[playerId]
+  //const nextPlayer = gameState.players[(playerId + 1) % gameState.players.length()]
+  //is there a reason why playerID is a string and not a number??
   if (player === undefined) return
 
   player.actionPoints = 1
-  player.shield = 0
+  //shield needs to be reset at the beginning of turns not the end otherwise it doesnt do anything
+  //nextPlayer.shield = 0
   gameState.turn += 1
 
-  // Draw back up to 7 cards
-  const cardsToDraw = 7 - player.hand.length
+  // Draw back up to 5 cards
+  const cardsToDraw = 5 - player.hand.length
   if (cardsToDraw > 0) drawCards(playerId, cardsToDraw)
 
   nextTurn()
