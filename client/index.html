@@ -56,9 +56,18 @@
     </div>
   </div>
 
-  <!-- GAME SCREEN (shown when 2 players connected) -->
   <!-- GAME SCREEN -->
   <div id="gameScreen">
+
+    <!-- Opponent's last played card -->
+    <div id="opponentPlayed">
+      <div class="opponent-played-label">Opponent played</div>
+      <div class="opponent-played-card">
+        <div class="opponent-played-icon" id="opponentPlayedIcon"></div>
+        <div class="opponent-played-name" id="opponentPlayedName"></div>
+      </div>
+    </div>
+
     <div class="rule">
       <span></span>
       <div class="rule-diamond"></div>
@@ -67,21 +76,88 @@
       <span></span>
     </div>
 
+    <!-- Stats -->
     <div id="gameInfo">
-      <p id="turnIndicator">Waiting...</p>
-      <p id="actionPoints">Actions: 0</p>
+      <div class="stat-block">
+        <span class="stat-label">Your HP</span>
+        <span class="stat-value" id="myHp">10</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-label">Shield</span>
+        <span class="stat-value" id="myShield">0</span>
+      </div>
+      <span id="turnIndicator">Waiting...</span>
+      <div class="stat-block">
+        <span class="stat-label">Their HP</span>
+        <span class="stat-value" id="oppHp">10</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-label">Shield</span>
+        <span class="stat-value" id="oppShield">0</span>
+      </div>
     </div>
 
-    <button id="endTurnBtn" onclick="endTurn()">End Turn</button>
+    <p id="actionPoints">Actions: 0</p>
+
+    <!-- Buttons -->
+    <div id="buttonRow">
+      <button id="drawTwoBtn" onclick="drawTwo()">Draw 2</button>
+      <button id="endTurnBtn" onclick="endTurn()">End Turn</button>
+    </div>
+
+    <!-- Cast button (shown when spell selected) -->
+    <button id="castBtn" onclick="castSpell()">Cast Spell</button>
 
     <!-- Hand -->
     <div id="hand"></div>
+
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="gameOverScreen">
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+    <p class="game-banner" id="gameOverText">Game Over</p>
+    <p class="game-sub" id="gameOverSub"></p>
   </div>
 
 </div>
 
+<!-- Cast animation (outside container, fixed position) -->
+<div id="castAnimation">
+  <div class="cast-card">
+    <div class="cast-card-icon" id="castAnimIcon"></div>
+    <div class="cast-card-name" id="castAnimName"></div>
+  </div>
+</div>
+
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="main.js"></script>
+<!-- History panel -->
+<div id="historyToggle" onclick="toggleHistory()">☰ Log</div>
 
+<div id="historyPanel">
+  <div id="historyHeader">
+    <span class="history-title">Play History</span>
+    <button id="historyClose" onclick="toggleHistory()">✕</button>
+  </div>
+
+  <div class="history-section">
+    <div class="history-section-label">You</div>
+    <ul id="myHistory"></ul>
+  </div>
+
+  <div class="history-divider"></div>
+
+  <div class="history-section">
+    <div class="history-section-label">Opponent</div>
+    <ul id="oppHistory"></ul>
+  </div>
+</div>
 </body>
 </html>

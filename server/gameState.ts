@@ -40,10 +40,14 @@ export function buildStarterDeck(): Card[] {
     { id: makeId(), kind: 'component', component: 'stardust' },
     { id: makeId(), kind: 'component', component: 'stardust' },
     { id: makeId(), kind: 'component', component: 'stardust' },
-    // One of each basic spell
+    // Two of each spell
+    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 1, components: ['fire', 'wax'] },
     { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 1, components: ['fire', 'wax'] },
     { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
+    { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
     { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
+    { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
+    { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
     { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
   ]
 }
@@ -60,11 +64,12 @@ export function shuffle(deck: Card[]): Card[] {
   return d
 }
 
-// The shape of a player
+// The things with and of a player
 export interface Player {
   id: string
   name: string
-  score: number
+  hp: number
+  shield: number
   actionPoints: number
   deck: Card[]
   hand: Card[]
@@ -76,29 +81,37 @@ export interface GameState {
   players: Record<string, Player>
   currentTurn: string | null
   phase: 'waiting' | 'playing' | 'ended'
+  lastPlayed: { playerId: string; card: SpellCard } | null
+  turn: number
+  history: Record<string, HistoryEntry[]> // keyed by playerId
 }
 
 // The single source of truth
 export const gameState: GameState = {
   players: {},
   currentTurn: null,
-  phase: 'waiting'
+  phase: 'waiting',
+  lastPlayed: null,
+  turn: 0,
+  history: {}
 }
 
 // Add a player to the game
 export function addPlayer(id: string, name: string): void {
   const deck = shuffle(buildStarterDeck())
-  const hand = deck.splice(0, 5) // take first 5 cards as starting hand
+  const hand = deck.splice(0, 5)
 
   gameState.players[id] = {
     id,
     name,
-    score: 0,
+    hp: 10,
+    shield: 0,
     actionPoints: 1,
     deck,
     hand,
     discard: []
   }
+  gameState.history[id] = []
 }
 
 // Remove a player from the game
@@ -171,6 +184,13 @@ export function playSpell(playerId: string, spellCardId: string, componentCardId
 
   // Resolve the spell effect
   resolveSpell(spellCard.spell, playerId)
+    // Track what was just played
+    gameState.lastPlayed = { playerId, card: spellCard }
+    // Record in history
+    gameState.history[playerId]?.push({
+    spellName: spellCard.spell,
+    turn: gameState.turn
+    })
 
   return true
 }
@@ -179,7 +199,6 @@ function resolveSpell(spell: SpellType, casterId: string): void {
   const player = gameState.players[casterId]
   if (player === undefined) return
 
-  // Find the opponent
   const opponentId = Object.keys(gameState.players).find(id => id !== casterId)
   const opponent = opponentId ? gameState.players[opponentId] : undefined
 
@@ -193,11 +212,17 @@ function resolveSpell(spell: SpellType, casterId: string): void {
       break
 
     case 'firebolt':
-      if (opponent !== undefined) opponent.score -= 1
+      if (opponent === undefined) break
+      const damage = 3
+      const absorbed = Math.min(opponent.shield, damage)
+      opponent.shield -= absorbed
+      opponent.hp -= (damage - absorbed)
+      // clamp hp to 0
+      if (opponent.hp < 0) opponent.hp = 0
       break
 
     case 'shield':
-      player.score += 1 // placeholder — proper blocking logic comes later
+      player.shield += 1
       break
   }
 }
@@ -206,13 +231,35 @@ export function endTurn(playerId: string): void {
   const player = gameState.players[playerId]
   if (player === undefined) return
 
-  // Reset action points for next turn
   player.actionPoints = 1
+  player.shield = 0
+  gameState.turn += 1
 
-  // Draw back up to 5 cards
   const cardsToDraw = 5 - player.hand.length
   if (cardsToDraw > 0) drawCards(playerId, cardsToDraw)
 
-  // Advance to next player's turn
   nextTurn()
+}
+
+export function drawTwo(playerId: string): boolean {
+  const player = gameState.players[playerId]
+  if (player === undefined) return false
+
+  drawCards(playerId, 2)
+  return true
+}
+
+export function checkWin(): string | null {
+  for (const player of Object.values(gameState.players)) {
+    if (player.hp <= 0) {
+      gameState.phase = 'ended'
+      return player.id // this player lost
+    }
+  }
+  return null
+}
+
+export interface HistoryEntry {
+  spellName: SpellType
+  turn: number
 }
