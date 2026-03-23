@@ -57,6 +57,7 @@
   </div>
 
   <!-- GAME SCREEN (shown when 2 players connected) -->
+  <!-- GAME SCREEN -->
   <div id="gameScreen">
     <div class="rule">
       <span></span>
@@ -65,8 +66,16 @@
       <div class="rule-diamond"></div>
       <span></span>
     </div>
-    <p class="game-banner">Both players ready.</p>
-    <p class="game-sub">The game begins&hellip;</p>
+
+    <div id="gameInfo">
+      <p id="turnIndicator">Waiting...</p>
+      <p id="actionPoints">Actions: 0</p>
+    </div>
+
+    <button id="endTurnBtn" onclick="endTurn()">End Turn</button>
+
+    <!-- Hand -->
+    <div id="hand"></div>
   </div>
 
 </div>

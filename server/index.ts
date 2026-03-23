@@ -1,7 +1,7 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
-import { gameState, addPlayer, removePlayer, startGame, nextTurn } from './gameState.js'
+import { gameState, addPlayer, removePlayer, startGame, nextTurn, playSpell, endTurn } from './gameState.js'
 
 const app = express()
 const httpServer = createServer(app)
@@ -27,12 +27,31 @@ io.on('connection', (socket: Socket) => {
 
   io.emit('stateUpdate', gameState)
 
-  // Player takes their turn
-  socket.on('takeTurn', () => {
-    if (gameState.currentTurn !== socket.id) return
-    nextTurn()
-    io.emit('stateUpdate', gameState)
-  })
+  // Player plays a spell
+    socket.on('playSpell', (spellCardId: string, componentCardIds: string[]) => {
+        // Must be this player's turn
+        if (gameState.currentTurn !== socket.id) return
+
+        // Must be in playing phase
+        if (gameState.phase !== 'playing') return
+
+        const success = playSpell(socket.id, spellCardId, componentCardIds)
+
+        if (success) {
+            io.emit('stateUpdate', gameState)
+        } else {
+            // Tell just this player the move was invalid
+            socket.emit('invalidMove', 'Could not cast spell — check your hand and action points')
+        }
+    })
+  // Player ends their turn
+    socket.on('endTurn', () => {
+        if (gameState.currentTurn !== socket.id) return
+        if (gameState.phase !== 'playing') return
+
+        endTurn(socket.id)
+        io.emit('stateUpdate', gameState)
+    })
 
   // Player disconnects
   socket.on('disconnect', () => {
@@ -48,6 +67,7 @@ io.on('connection', (socket: Socket) => {
 
     io.emit('stateUpdate', gameState)
   })
+  
 })
 
 httpServer.listen(3000, () => {

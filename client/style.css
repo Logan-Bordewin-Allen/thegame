@@ -272,3 +272,196 @@ h1 {
   0%, 100% { box-shadow: 0 0 0 0 rgba(42,161,152,0.3); }
   50%       { box-shadow: 0 0 0 6px rgba(42,161,152,0); }
 }
+
+/* ---- Game Screen ---- */
+#gameInfo {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+#turnIndicator {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--base02);
+  letter-spacing: 0.05em;
+}
+
+#actionPoints {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--yellow);
+  letter-spacing: 0.05em;
+}
+
+#endTurnBtn {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: var(--base2);
+  border: 1px solid var(--base1);
+  color: var(--base01);
+  padding: 0.5rem 1.4rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
+}
+
+#endTurnBtn:hover {
+  background: var(--base02);
+  color: var(--base3);
+  border-color: var(--base02);
+}
+
+#endTurnBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- Hand ---- */
+#hand {
+  position: fixed;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: 0;
+  pointer-events: none;
+}
+
+.card-in-hand {
+  position: relative;
+  width: 120px;
+  height: 160px;
+  border-radius: 7px;
+  border: 1.5px solid var(--base1);
+  background: var(--base3);
+  box-shadow: 0 4px 12px rgba(0,43,54,0.15);
+  cursor: pointer;
+  pointer-events: all;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding-bottom: 8px;
+  margin: 0 -8px; /* overlap cards */
+  flex-shrink: 0;
+}
+
+/* fan effect */
+.card-in-hand:nth-child(1)  { transform: rotate(-10deg) translateY(8px); }
+.card-in-hand:nth-child(2)  { transform: rotate(-7deg)  translateY(4px); }
+.card-in-hand:nth-child(3)  { transform: rotate(-4deg)  translateY(2px); }
+.card-in-hand:nth-child(4)  { transform: rotate(-1deg)  translateY(0px); }
+.card-in-hand:nth-child(5)  { transform: rotate(2deg)   translateY(2px); }
+.card-in-hand:nth-child(6)  { transform: rotate(5deg)   translateY(4px); }
+.card-in-hand:nth-child(7)  { transform: rotate(8deg)   translateY(8px); }
+
+.card-in-hand:hover {
+  transform: rotate(0deg) translateY(-30px) scale(1.08) !important;
+  z-index: 100;
+  box-shadow: 0 16px 32px rgba(0,43,54,0.25);
+}
+
+/* card face — default (no hover) */
+.card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--base02);
+  letter-spacing: 0.04em;
+  text-align: center;
+  padding: 0 4px;
+  line-height: 1.2;
+}
+
+.card-type-badge {
+  font-size: 0.45rem;
+  font-style: italic;
+  color: var(--base00);
+  margin-top: 2px;
+}
+
+/* card top icon */
+.card-icon {
+  position: absolute;
+  top: 8px;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+/* hover detail panel */
+.card-detail {
+  display: none;
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  background: var(--base3);
+  border: 1.5px solid var(--base1);
+  border-radius: 7px;
+  padding: 10px;
+  box-shadow: 0 8px 24px rgba(0,43,54,0.2);
+  z-index: 200;
+  text-align: left;
+  pointer-events: none;
+}
+
+.card-in-hand:hover .card-detail {
+  display: block;
+}
+
+.detail-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--base02);
+  margin-bottom: 4px;
+}
+
+.detail-type {
+  font-size: 0.6rem;
+  font-style: italic;
+  color: var(--base00);
+  margin-bottom: 6px;
+}
+
+.detail-divider {
+  height: 1px;
+  background: var(--base1);
+  margin: 5px 0;
+}
+
+.detail-components {
+  font-size: 0.58rem;
+  color: var(--base01);
+  margin-bottom: 4px;
+}
+
+.detail-cost {
+  font-size: 0.58rem;
+  color: var(--yellow);
+  font-weight: 600;
+}
+
+.detail-effect {
+  font-size: 0.58rem;
+  color: var(--base01);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* component color coding */
+.fire     { color: var(--orange); }
+.ice      { color: var(--blue); }
+.wax      { color: var(--yellow); }
+.stardust { color: var(--violet); }
+.spell    { color: var(--cyan); }
