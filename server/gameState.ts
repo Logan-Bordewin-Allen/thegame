@@ -41,7 +41,7 @@ export function buildStarterDeck(): Card[] {
     { id: makeId(), kind: 'component', component: 'stardust' },
     { id: makeId(), kind: 'component', component: 'stardust' },
     // One of each basic spell
-    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 1, components: ['fire', 'wax'] },
+    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 0, components: ['fire', 'wax'] },
     { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
     { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
     { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
@@ -189,7 +189,7 @@ function resolveSpell(spell: SpellType, casterId: string): void {
       break
 
     case 'tome':
-      drawCards(casterId, 2)
+      drawCards(casterId, 4)
       break
 
     case 'firebolt':
@@ -209,8 +209,8 @@ export function endTurn(playerId: string): void {
   // Reset action points for next turn
   player.actionPoints = 1
 
-  // Draw back up to 5 cards
-  const cardsToDraw = 5 - player.hand.length
+  // Draw back up to 7 cards
+  const cardsToDraw = 7 - player.hand.length
   if (cardsToDraw > 0) drawCards(playerId, cardsToDraw)
 
   // Advance to next player's turn
