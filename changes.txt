@@ -1,4 +1,4 @@
-Use this file to summerize new changes/commits, when the next person reads it clear the
+Use this file to summarize new changes/commits, when the next person reads it clear the
 file and begin documenting new changes. I think this should help sync us up and keep each
 other in the loop :)
 
@@ -12,9 +12,9 @@ other in the loop :)
 
     Bugs
 - When ending turn shield is removed from current player rather than the next player
-attempted fix showed playerId is a string didn't wnat to change smth and cause a problem
+attempted fix showed playerId is a string didn't want to change smth and cause a problem
 - Can't select cards from spellbook making game unplayable
-- Running a test server shows that neither player is ready dispite the site being open
+- Running a test server shows that neither player is ready despite the site being open
 
     Next steps
 - Adding backend spellbook into the frontend!!
