@@ -3,18 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game</title>
+  <title>The Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
-  <!-- Socket.io loaded from CDN, no install needed -->
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body>
 
-  <div id="app">
-    <h1 id="status"> Connecting...</h1>
+<div class="container">
+
+  <!-- WAITING SCREEN -->
+  <div id="waitingScreen">
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+
+    <h1>The Game</h1>
+    <p class="subtitle">A card &amp; board adventure for two</p>
+
+    <div class="card-stack">
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-label">Players</div>
+      <div class="player-slots">
+        <div class="slot">
+          <div class="slot-icon" id="slot1">○</div>
+          <div class="slot-label">Player 1</div>
+        </div>
+        <div class="slot-divider">vs</div>
+        <div class="slot">
+          <div class="slot-icon" id="slot2">○</div>
+          <div class="slot-label">Player 2</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="waiting-text">
+      Waiting for players<span class="dots"><span>.</span><span>.</span><span>.</span></span>
+    </p>
+
+    <div class="rule rule-bottom">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
   </div>
 
-  <script src="main.js"></script>
+  <!-- GAME SCREEN (shown when 2 players connected) -->
+  <div id="gameScreen">
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+    <p class="game-banner">Both players ready.</p>
+    <p class="game-sub">The game begins&hellip;</p>
+  </div>
+
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>

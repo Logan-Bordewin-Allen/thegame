@@ -7,29 +7,29 @@ const app = express()
 const httpServer = createServer(app)
 const io = new Server(httpServer, {
   cors: {
-    origin: '*' // allows your client to connect during development
+    origin: '*'
   }
 })
 
 io.on('connection', (socket: Socket) => {
   console.log('Player connected:', socket.id)
 
-  // Player joins with a name
-  socket.on('joinGame', (name: string) => {
-    addPlayer(socket.id, name)
-    console.log(`${name} joined the game`)
-    io.emit('stateUpdate', gameState) // tell everyone about the new player
-  })
+  // Auto assign player and check if we can start
+  addPlayer(socket.id, `Player ${Object.keys(gameState.players).length}`)
 
-  // Host starts the game
-  socket.on('startGame', () => {
+  const playerCount = Object.keys(gameState.players).length
+  console.log(`Players connected: ${playerCount}/2`)
+
+  if (playerCount === 2) {
     startGame()
-    io.emit('stateUpdate', gameState)
-  })
+    console.log('Both players connected — starting game!')
+  }
+
+  io.emit('stateUpdate', gameState)
 
   // Player takes their turn
   socket.on('takeTurn', () => {
-    if (gameState.currentTurn !== socket.id) return // not your turn!
+    if (gameState.currentTurn !== socket.id) return
     nextTurn()
     io.emit('stateUpdate', gameState)
   })
@@ -38,6 +38,14 @@ io.on('connection', (socket: Socket) => {
   socket.on('disconnect', () => {
     console.log('Player disconnected:', socket.id)
     removePlayer(socket.id)
+
+    // If someone leaves mid game, reset back to waiting
+    if (gameState.phase === 'playing') {
+      gameState.phase = 'waiting'
+      gameState.currentTurn = null
+      console.log('Player left — returning to waiting screen')
+    }
+
     io.emit('stateUpdate', gameState)
   })
 })
