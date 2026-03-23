@@ -1,7 +1,7 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
-import { gameState, addPlayer, removePlayer, startGame, nextTurn, playSpell, endTurn } from './gameState.js'
+import { gameState, addPlayer, removePlayer, startGame, nextTurn, playSpell, endTurn, drawTwo, checkWin } from './gameState.js'
 
 const app = express()
 const httpServer = createServer(app)
@@ -38,8 +38,12 @@ io.on('connection', (socket: Socket) => {
         const success = playSpell(socket.id, spellCardId, componentCardIds)
 
         if (success) {
+            const loserId = checkWin()
             io.emit('stateUpdate', gameState)
-        } else {
+            if (loserId) {
+                io.emit('gameOver', { loserId })
+            }
+        }else {
             // Tell just this player the move was invalid
             socket.emit('invalidMove', 'Could not cast spell — check your hand and action points')
         }
@@ -67,6 +71,14 @@ io.on('connection', (socket: Socket) => {
 
     io.emit('stateUpdate', gameState)
   })
+  // Player draws two cards
+socket.on('drawTwo', () => {
+  if (gameState.currentTurn !== socket.id) return
+  if (gameState.phase !== 'playing') return
+
+  drawTwo(socket.id)
+  io.emit('stateUpdate', gameState)
+})
   
 })
 
