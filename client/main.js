@@ -92,6 +92,7 @@ document.getElementById('drawTwoBtn').disabled = !isMyTurn || hasDrawnTwo
 
   updateHistory(gameState)
 document.getElementById('historyToggle').classList.add('visible')
+renderSpellbook(me.spellbook, isMyTurn)
 }
 
 // ---- Render hand ----
@@ -154,12 +155,8 @@ function renderHand(hand, isMyTurn) {
       <div class="card-type-badge ${typeClass}">${typeLabel}</div>
     `
 
-    // only spells are clickable, and only on your turn
-    if (isMyTurn && card.kind === 'spell') {
-      el.addEventListener('click', () => onSpellClick(card, hand))
-    } else if (card.kind === 'component') {
-      el.classList.add('invalid') // components cant be clicked directly
-    }
+    // hand only has components now, none are directly clickable
+    el.classList.add('invalid')
 
     handEl.appendChild(el)
   })
@@ -375,3 +372,57 @@ function renderHistoryList(elId, entries) {
     el.appendChild(li)
   })
 }
+
+// ---- Render spellbook ----
+function renderSpellbook(spellbook, isMyTurn) {
+  const el = document.getElementById('spellbook')
+  el.innerHTML = '<div class="spellbook-label">Spellbook</div>'
+
+  spellbook.forEach(card => {
+    const div = document.createElement('div')
+    div.classList.add('spell-in-book')
+    if (!isMyTurn) div.classList.add('not-my-turn')
+    if (card.id === selectedSpell) div.classList.add('selected')
+
+    const costText = card.actionCost === 0 ? 'Free' : `${card.actionCost} action${card.actionCost > 1 ? 's' : ''}`
+
+    // detail panel
+    const detailHTML = `
+      <div class="detail-name">${formatSpellName(card.spell)}</div>
+      <div class="detail-type spell">Spell</div>
+      <div class="detail-divider"></div>
+      <div class="detail-components">Needs: ${card.components.map(c =>
+        `<span class="${c}">${capitalize(c)}</span>`).join(' + ')}
+      </div>
+      <div class="detail-cost">Cost: ${costText}</div>
+      <div class="detail-effect">${CARD_EFFECTS[card.spell] ?? ''}</div>
+    `
+
+    div.innerHTML = `
+      <div class="spell-book-icon">${CARD_ICONS[card.spell]}</div>
+      <div class="card-detail">${detailHTML}</div>
+      <div class="spell-book-name">${formatSpellName(card.spell)}</div>
+      <div class="spell-book-cost">${costText}</div>
+    `
+
+    if (isMyTurn) {
+      div.addEventListener('click', () => onSpellClick(card, currentState.players[myId].hand))
+    }
+
+    el.appendChild(div)
+  })
+}
+
+// ---- GUI Scaler ----
+function applyScale(value) {
+  document.documentElement.style.zoom = `${value}%`
+  document.getElementById('scaleValue').textContent = `${value}%`
+  localStorage.setItem('guiScale', value)
+}
+
+// restore saved scale on load
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('guiScale') ?? '100'
+  document.getElementById('scaleSlider').value = saved
+  applyScale(saved)
+})

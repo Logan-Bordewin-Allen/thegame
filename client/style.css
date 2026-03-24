@@ -819,3 +819,128 @@ h1 {
   background: var(--base1);
   margin: 1rem 0;
 }
+
+/* ---- Spellbook ---- */
+#spellbook {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--cyan);
+  border-radius: 6px;
+  background: rgba(42,161,152,0.04);
+}
+
+.spellbook-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--base00);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 0.2rem;
+}
+
+.spell-in-book {
+  width: 80px;
+  height: 110px;
+  border-radius: 7px;
+  border: 1.5px solid var(--cyan);
+  background: linear-gradient(160deg, #f0fffe 60%, rgba(42,161,152,0.12));
+  box-shadow: 0 2px 8px rgba(42,161,152,0.15);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.spell-in-book:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 20px rgba(42,161,152,0.25);
+}
+
+.spell-in-book.selected {
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 2px var(--yellow);
+  transform: translateY(-6px);
+}
+
+.spell-in-book.not-my-turn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.spell-book-icon { font-size: 1.4rem; }
+
+.spell-book-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.42rem;
+  font-weight: 600;
+  color: var(--base02);
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
+.spell-book-cost {
+  font-size: 0.4rem;
+  color: var(--yellow);
+  font-style: italic;
+}
+
+/* hover detail reused from hand cards */
+.spell-in-book .card-detail {
+  bottom: 115px;
+}
+
+/* ---- GUI Scaler ---- */
+#guiScaler {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--base2);
+  border: 1px solid var(--base1);
+  border-radius: 4px;
+  padding: 0.4rem 0.8rem;
+  z-index: 1000;
+  opacity: 0.4;
+  transition: opacity 0.2s ease;
+}
+
+#guiScaler:hover {
+  opacity: 1;
+}
+
+.scaler-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--base00);
+  white-space: nowrap;
+}
+
+#scaleSlider {
+  width: 80px;
+  accent-color: var(--cyan);
+  cursor: pointer;
+}
+
+#scaleValue {
+  font-family: 'Cinzel', serif;
+  font-size: 0.55rem;
+  color: var(--base01);
+  min-width: 2.5rem;
+  text-align: right;
+}

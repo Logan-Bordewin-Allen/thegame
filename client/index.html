@@ -107,7 +107,8 @@
 
     <!-- Cast button (shown when spell selected) -->
     <button id="castBtn" onclick="castSpell()">Cast Spell</button>
-
+    <!-- spell book-->
+    <div id="spellbook"></div>
     <!-- Hand -->
     <div id="hand"></div>
 
@@ -159,5 +160,13 @@
     <ul id="oppHistory"></ul>
   </div>
 </div>
+<!-- GUI Scaler -->
+<div id="guiScaler">
+  <span class="scaler-label">UI Scale</span>
+  <input type="range" id="scaleSlider" min="70" max="130" value="100" step="5"
+    oninput="applyScale(this.value)">
+  <span id="scaleValue">100%</span>
+</div>
+
 </body>
 </html>

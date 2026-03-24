@@ -239,22 +239,20 @@ function resolveSpell(spell: SpellType, casterId: string): void {
 
 export function endTurn(playerId: string): void {
   const player = gameState.players[playerId]
-  //const nextPlayer = gameState.players[(playerId + 1) % gameState.players.length()]
-  //is there a reason why playerID is a string and not a number??
   if (player === undefined) return
 
   player.actionPoints = 1
-  //shield needs to be reset at the beginning of turns not the end otherwise it doesnt do anything
-  //nextPlayer.shield = 0
   gameState.turn += 1
 
-  // Draw back up to 5 cards
   const cardsToDraw = 5 - player.hand.length
   if (cardsToDraw > 0) drawCards(playerId, cardsToDraw)
 
-  nextTurn()
-}
+  nextTurn() // advance turn first
 
+  // NOW reset the next player's shield at the start of their turn
+  const nextPlayer = gameState.players[gameState.currentTurn!]
+  if (nextPlayer !== undefined) nextPlayer.shield = 0
+}
 export function drawTwo(playerId: string): boolean {
   const player = gameState.players[playerId]
   if (player === undefined) return false
