@@ -98,11 +98,11 @@ renderSpellbook(me.spellbook, isMyTurn)
 // ---- Render hand ----
 const CARD_ICONS = {
   fire: '🔥', ice: '❄️', wax: '🕯️', stardust: '✨',
-  actionSpell: '⚡', tome: '📖', firebolt: '🔥', shield: '🛡️'
+  charge: '⚡', tome: '📖', firebolt: '🔥', shield: '🛡️'
 }
 
 const CARD_EFFECTS = {
-  actionSpell: '+1 Action point',
+  charge: '+1 Action point',
   tome: 'Draw 2 cards',
   firebolt: 'Deal 1 damage',
   shield: 'Block 1 damage'
@@ -305,7 +305,7 @@ function capitalize(str) {
 
 function formatSpellName(spell) {
   const names = {
-    actionSpell: 'Action Spell',
+    charge: 'Charge',
     tome: 'Tome',
     firebolt: 'Firebolt',
     shield: 'Shield'

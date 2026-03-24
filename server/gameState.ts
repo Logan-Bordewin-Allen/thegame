@@ -1,6 +1,7 @@
 // ---- Card Types ----
 export type ComponentType = 'fire' | 'ice' | 'wax' | 'stardust'
-export type SpellType = 'actionSpell' | 'tome' | 'firebolt' | 'shield'
+export type SpellType = 'charge' | 'tome' | 'firebolt' | 'shield' | 'cantrip' | 'omniscience' | 'rush' | 'dud'
+export type ItemType = 'match' | 'snow' | 'candle' | 'meteorite'
 
 export interface ComponentCard {
   id: string
@@ -14,9 +15,17 @@ export interface SpellCard {
   spell: SpellType
   actionCost: number
   components: ComponentType[] // what components are needed to cast it
+  cost: number
 }
 
-export type Card = ComponentCard | SpellCard
+export interface ItemCard {
+  id: string
+  kind: 'item'
+  item: ItemType
+  cost: number
+}
+
+export type Card = ComponentCard | SpellCard | ItemCard
 
 // ---- Deck Builder ----
 let cardCounter = 0
@@ -51,14 +60,72 @@ function spellID(): string{
     return ""+spellcount
 }
 
+function isSpellType(spellName: string): spellName is SpellType{
+  return ['charge' , 'tome' , 'firebolt' , 'shield' , 'cantrip' , 'omniscience' , 'rush'].includes(spellName)
+}
+
+//spell creation helper funcion, use this to create new spells
+function buildSpellCard(spellName: string): SpellCard{
+  if(isSpellType(spellName)){
+    switch (spellName){
+      case 'charge':
+        return { id: makeId(), kind: 'spell', spell: 'charge', actionCost: 0, components: ['fire', 'wax'], cost: 0 }
+        break
+
+      case 'tome':
+        return { id: makeId(), kind: 'spell', spell: 'tome', actionCost: 1, components: ['ice', 'stardust'], cost: 0 }
+        break
+
+      case 'firebolt':
+        return { id: makeId(), kind: 'spell', spell: 'firebolt', actionCost: 1, components: ['fire', 'stardust'], cost: 0 }
+        break
+
+      case 'shield':
+        return { id: makeId(), kind: 'spell', spell: 'shield', actionCost: 1, components: ['ice', 'wax'], cost: 0 }
+        break
+      
+      case 'cantrip':
+        return {id: makeId(), kind: 'spell', spell: 'cantrip', actionCost: 0, components: ['fire'], cost: 3}
+        break
+
+      case 'omniscience':
+        return {id: makeId(), kind: 'spell', spell: 'omniscience', actionCost: 2, components: ['fire', 'wax', 'stardust','ice'], cost: 5}
+        break
+
+      case 'rush':
+        return {id: makeId(), kind: 'spell', spell: 'rush', actionCost: 2, components: [], cost: 3}
+        break
+    }
+  }
+  //if this ever happens we are cooked
+  console.log('error in buildSpellCard')
+  return {id: makeId(), kind: 'spell', spell: 'dud', actionCost: 0, components: [], cost: 0}
+}
+
+
 export function buildStarterBook(): SpellCard[]{
     return [
-    { id: makeId(), kind: 'spell', spell: 'actionSpell', actionCost: 0, components: ['fire', 'wax'] },
-    { id: makeId(), kind: 'spell', spell: 'tome',        actionCost: 1, components: ['ice', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'firebolt',    actionCost: 1, components: ['fire', 'stardust'] },
-    { id: makeId(), kind: 'spell', spell: 'shield',      actionCost: 1, components: ['ice', 'wax'] },
+    buildSpellCard('charge'),
+    buildSpellCard('tome'),
+    buildSpellCard('firebolt'),
+    buildSpellCard('shield')
     ]
 } 
+
+
+//Adds all non-standard spells and items and then suffles them
+export function buildShop(): Card[]{
+  return shuffle([
+    buildSpellCard('cantrip'),
+    buildSpellCard('omniscience'),
+    buildSpellCard('rush'),
+    {id: makeId(), kind: 'item', item: 'candle', cost: 3},
+    {id: makeId(), kind: 'item', item: 'match', cost: 3},
+    {id: makeId(), kind: 'item', item: 'snow', cost: 3},
+    {id: makeId(), kind: 'item', item: 'meteorite', cost: 3},
+    ])
+}
+
 export function shuffle(deck: Card[]): Card[] {
   const d = [...deck]
   for (let i = d.length - 1; i > 0; i--) {
@@ -82,6 +149,8 @@ export interface Player {
   hand: Card[]
   discard: Card[]
   spellbook: SpellCard[]
+  gold: number
+  points: number
 }
 
 // The full game state
@@ -92,6 +161,7 @@ export interface GameState {
   lastPlayed: { playerId: string; card: SpellCard } | null
   turn: number
   history: Record<string, HistoryEntry[]> // keyed by playerId
+  shop: Card[]
 }
 
 // The single source of truth
@@ -101,7 +171,8 @@ export const gameState: GameState = {
   phase: 'waiting',
   lastPlayed: null,
   turn: 0,
-  history: {}
+  history: {},
+  shop: buildShop()
 }
 
 // Add a player to the game
@@ -119,7 +190,9 @@ export function addPlayer(id: string, name: string): void {
     deck,
     hand,
     discard: [],
-    spellbook
+    spellbook,
+    gold: 0,
+    points: 0
   }
   gameState.history[id] = []
 }
@@ -205,6 +278,27 @@ export function playSpell(playerId: string, spellCardId: string, componentCardId
   return true
 }
 
+export function shopPurchase(playerId: string, CardId: string): boolean{
+  const player = gameState.players[playerId]
+  if (player === undefined) return false
+
+  const shopCard = gameState.shop.find(c => c.id === CardId)
+  if (shopCard === undefined) return false
+
+  if(shopCard.kind === 'item' && player.gold >= shopCard.cost){
+    resolveItem(shopCard.item,player.id)
+    return true
+  }else if(shopCard.kind === 'spell' && player.points >= shopCard.cost){
+    //unnessassary if statement but stops an error
+    if(gameState.players[playerId] != undefined)
+      gameState.players[playerId].discard.push(buildSpellCard(shopCard.spell))
+    return true
+  }
+  
+  //player lack currency
+  return false
+}
+
 function resolveSpell(spell: SpellType, casterId: string): void {
   const player = gameState.players[casterId]
   if (player === undefined) return
@@ -213,7 +307,7 @@ function resolveSpell(spell: SpellType, casterId: string): void {
   const opponent = opponentId ? gameState.players[opponentId] : undefined
 
   switch (spell) {
-    case 'actionSpell':
+    case 'charge':
       player.actionPoints += 1
       break
 
@@ -223,18 +317,56 @@ function resolveSpell(spell: SpellType, casterId: string): void {
 
     case 'firebolt':
       if (opponent === undefined) break
-      const damage = 3
-      const absorbed = Math.min(opponent.shield, damage)
-      opponent.shield -= absorbed
-      opponent.hp -= (damage - absorbed)
+      const fbDamage = 3
+      const fbAbsorbed = Math.min(opponent.shield, fbDamage)
+      opponent.shield -= fbAbsorbed
+      opponent.hp -= (fbDamage - fbAbsorbed)
       // clamp hp to 0
       if (opponent.hp < 0) opponent.hp = 0
       break
 
     case 'shield':
-      player.shield += 1
+      player.shield += 2
       break
+
+    case 'cantrip':
+      if (opponent === undefined) break
+      const cDamage = 1
+      const cAbsorbed = Math.min(opponent.shield, cDamage)
+      opponent.shield -= cAbsorbed
+      opponent.hp -= (cDamage - cAbsorbed)
+      break
+
+    case 'omniscience':
+      player.actionPoints += 3
+      drawCards(casterId, 6)
+      break
+
+    case 'rush':
+      drawCards(casterId, 2)
+      break
+
   }
+}
+
+function resolveItem(item: ItemType, casterId: string): void{
+  const player = gameState.players[casterId]
+  if (player === undefined) return
+
+  switch (item){
+    case 'candle':
+      player.discard.push({ id: makeId(), kind: 'component', component: 'wax' })
+
+    case 'match':
+      player.discard.push({ id: makeId(), kind: 'component', component: 'fire' })
+
+    case 'meteorite':
+      player.discard.push({ id: makeId(), kind: 'component', component: 'stardust' })
+
+    case 'snow':
+      player.discard.push({ id: makeId(), kind: 'component', component: 'ice' })
+  }
+
 }
 
 export function endTurn(playerId: string): void {

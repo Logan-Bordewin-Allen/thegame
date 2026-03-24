@@ -3,29 +3,38 @@ When you finish your session, clear this file and document your own changes, bug
 
 ---
 
-Session: Logan
+Session: Mitch
 
 ### Changes
-- Added spellbook rendering — spells now display in a separate UI panel above the hand
-- Spellbook cards are clickable and trigger onSpellClick which searches hand for matching components
-- Hand now only renders component cards, no spell cards (matches your backend change)
-- Removed click listeners from component cards in hand — they are no longer directly clickable
-
+- Added new spells
+  - Cantrip uses one fire to do one damage without any action cost
+  - Omniscience is a payoff spell that takes one off each component and gives three actions and six cards (hard to get off)
+  - Rush has no components and takes two action points to draw two cards
+- actionSpell name changed to charge because it was dumb
+- Made shield give two to deal with increased damage in the game
+- Spells now have cost for the shop (starting spells arbitrarily cost zero)
+- New card type of items (used to manipulate component deck)
+  - Candle adds one wax, match adds one fire, snow adds one ice, meterorite adds one stardust
+- resolveItem created to use items
+- buildSpellCard helper function created, use it to make new spells
+- shopPurchase added, two cases one for items one for spells
 
 ### Bugs
-- Shield only blocks 1 damage per cast — might want to bump it up, up to you
+- players are unable to gain gold to buy items or points to learn spells
+- shop items are not removed after they are puchased
+- shop is not accessable and shop cards are not selectable
 
 ### Notes
-- Bug 3 from your last session (neither player ready) is a setup issue not a code issue
-  make sure you follow the README setup steps exactly, particularly that io.emit('stateUpdate')
-  is outside and after the if (playerCount === 2) block in index.ts
-- card play history defaults to closed, maybe should be open
-- GUI scaling was messed up for me. Could be because it is trying to store it in local storage, but I have two instances of the tab open. Also the slider does not work. the gui scale is not moblie friendly. The things don't indenpendently scale, it just scales the whole thing, so there can be some undesiered overlap.
+- GUI errors are untouched
+- Downloaded Node and I am now able to run the dev server
+- New spells might be wildly unbalenced can't try them out yet feel free to tweak the numbers
+- Shop may be buggy, can't test it without any way to access the shop
 
 ---
 #### Next Steps
 - fix GUI stuff
-- Test full game loop end to end with both players (i already kinda did this and it is really quite fun)
+- Test full game loop end to end with both players (i already kinda did this and it is really quite fun) - hmu next time you want to try ts
 - Missions system — completing missions to earn coins and points
-- Spending points to upgrade deck and learn new spells
 - More spell types and component combinations
+- Add shop to the frontend
+- Hybrid components i.e. plasma that works as both fire or stardust
