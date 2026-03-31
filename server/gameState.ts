@@ -275,29 +275,33 @@ export function playSpell(playerId: string, spellCardId: string, componentCardId
     turn: gameState.turn
     })
 
+    player.points += 1  // earn 1 point per spell cast
   return true
 }
 
-export function shopPurchase(playerId: string, CardId: string): boolean{
+export function shopPurchase(playerId: string, CardId: string): boolean {
   const player = gameState.players[playerId]
   if (player === undefined) return false
 
   const shopCard = gameState.shop.find(c => c.id === CardId)
   if (shopCard === undefined) return false
 
-  if(shopCard.kind === 'item' && player.gold >= shopCard.cost){
-    resolveItem(shopCard.item,player.id)
+  if (shopCard.kind === 'item' && player.gold >= shopCard.cost) {
+    player.gold -= shopCard.cost  // deduct gold
+    gameState.shop = gameState.shop.filter(c => c.id !== CardId)  // remove from shop
+    resolveItem(shopCard.item, player.id)
     return true
-  }else if(shopCard.kind === 'spell' && player.points >= shopCard.cost){
-    //unnessassary if statement but stops an error
-    if(gameState.players[playerId] != undefined)
-      gameState.players[playerId].discard.push(buildSpellCard(shopCard.spell))
+  } else if (shopCard.kind === 'spell' && player.points >= shopCard.cost) {
+    player.points -= shopCard.cost  // deduct points
+    gameState.shop = gameState.shop.filter(c => c.id !== CardId)  // remove from shop
+    if (gameState.players[playerId] !== undefined)
+      gameState.players[playerId]!.spellbook.push(buildSpellCard(shopCard.spell))
     return true
   }
-  
-  //player lack currency
+  // if the player lacks bands
   return false
 }
+  
 
 function resolveSpell(spell: SpellType, casterId: string): void {
   const player = gameState.players[casterId]
@@ -356,15 +360,18 @@ function resolveItem(item: ItemType, casterId: string): void{
   switch (item){
     case 'candle':
       player.discard.push({ id: makeId(), kind: 'component', component: 'wax' })
+      break
+      //haha you forgot to add these
 
     case 'match':
       player.discard.push({ id: makeId(), kind: 'component', component: 'fire' })
-
+      break
     case 'meteorite':
       player.discard.push({ id: makeId(), kind: 'component', component: 'stardust' })
-
+      break
     case 'snow':
       player.discard.push({ id: makeId(), kind: 'component', component: 'ice' })
+      break
   }
 
 }
@@ -384,13 +391,16 @@ export function endTurn(playerId: string): void {
   // NOW reset the next player's shield at the start of their turn
   const nextPlayer = gameState.players[gameState.currentTurn!]
   if (nextPlayer !== undefined) nextPlayer.shield = 0
+  player.gold += 1  // earn 1 gold per turn
 }
+
 export function drawTwo(playerId: string): boolean {
   const player = gameState.players[playerId]
   if (player === undefined) return false
 
   drawCards(playerId, 2)
   return true
+  
 }
 
 export function checkWin(): string | null {

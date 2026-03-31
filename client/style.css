@@ -944,3 +944,164 @@ h1 {
   min-width: 2.5rem;
   text-align: right;
 }
+
+#myGold   { color: var(--yellow); }
+#myPoints { color: var(--violet); }
+
+/* ---- Shop toggle button ---- */
+#shopToggle {
+  position: fixed;
+  right: 0;
+  top: calc(50% + 60px);
+  transform: translateY(-50%);
+  background: var(--base2);
+  border: 1px solid var(--base1);
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  padding: 0.6rem 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--base01);
+  cursor: pointer;
+  z-index: 400;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  display: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+#shopToggle.visible { display: block; }
+#shopToggle.disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+#shopToggle:hover {
+  background: var(--base02);
+  color: var(--base3);
+}
+
+/* ---- Shop panel ---- */
+#shopPanel {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 280px;
+  height: 100vh;
+  background: var(--base3);
+  border-left: 1px solid var(--base1);
+  box-shadow: -4px 0 20px rgba(0,43,54,0.1);
+  z-index: 500;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  overflow-y: auto;
+  gap: 0.8rem;
+}
+
+#shopPanel.open { right: 0; }
+
+#shopHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--base02);
+}
+
+#shopClose {
+  background: none;
+  border: none;
+  color: var(--base00);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0;
+}
+
+#shopClose:hover { color: var(--base02); }
+
+.shop-currency {
+  display: flex;
+  gap: 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+}
+
+.shop-currency span:first-child { color: var(--yellow); }
+.shop-currency span:last-child  { color: var(--violet); }
+
+.shop-section { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.shop-section-label {
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--base00);
+}
+
+/* shop card rows */
+.shop-card {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--base2);
+  border: 1px solid var(--base1);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shop-card:hover {
+  border-color: var(--yellow);
+  background: rgba(181,137,0,0.06);
+}
+
+.shop-card.cant-afford {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.shop-card-icon { font-size: 1.2rem; }
+
+.shop-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.shop-card-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: var(--base02);
+  letter-spacing: 0.04em;
+}
+
+.shop-card-effect {
+  font-size: 0.58rem;
+  font-style: italic;
+  color: var(--base00);
+}
+
+.shop-card-cost {
+  font-family: 'Cinzel', serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.shop-card-cost.gold   { color: var(--yellow); }
+.shop-card-cost.points { color: var(--violet); }

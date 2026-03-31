@@ -1,7 +1,7 @@
 import express from 'express'
 import { createServer } from 'http'
 import { Server, Socket } from 'socket.io'
-import { gameState, addPlayer, removePlayer, startGame, nextTurn, playSpell, endTurn, drawTwo, checkWin } from './gameState.js'
+import { gameState, addPlayer, removePlayer, startGame, nextTurn, playSpell, endTurn, drawTwo, checkWin, shopPurchase } from './gameState.js'
 
 const app = express()
 const httpServer = createServer(app)
@@ -79,9 +79,21 @@ socket.on('drawTwo', () => {
   drawTwo(socket.id)
   io.emit('stateUpdate', gameState)
 })
-  
+  socket.on('shopPurchase', (cardId: string) => {
+  if (gameState.currentTurn !== socket.id) return
+  if (gameState.phase !== 'playing') return
+
+  const success = shopPurchase(socket.id, cardId)
+
+  if (success) {
+    io.emit('stateUpdate', gameState)
+  } else {
+    socket.emit('invalidMove', 'Cannot purchase — check your gold or points')
+  }
+})
 })
 
 httpServer.listen(3000, () => {
   console.log('Server running on http://localhost:3000')
 })
+

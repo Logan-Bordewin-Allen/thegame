@@ -95,6 +95,15 @@
         <span class="stat-label">Shield</span>
         <span class="stat-value" id="oppShield">0</span>
       </div>
+
+        <div class="stat-block">
+            <span class="stat-label">Gold</span>
+            <span class="stat-value" id="myGold">0</span>
+            </div>
+        <div class="stat-block">
+            <span class="stat-label">Points</span>
+            <span class="stat-value" id="myPoints">0</span>
+        </div>
     </div>
 
     <p id="actionPoints">Actions: 0</p>
@@ -139,9 +148,11 @@
 
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="main.js"></script>
-<!-- History panel -->
+<!-- right panel -->
 <div id="historyToggle" onclick="toggleHistory()">☰ Log</div>
+<div id="shopToggle" onclick="toggleShop()">🛒Shop</div>
 
+<!-- history pannel thing -->
 <div id="historyPanel">
   <div id="historyHeader">
     <span class="history-title">Play History</span>
@@ -160,6 +171,32 @@
     <ul id="oppHistory"></ul>
   </div>
 </div>
+
+<!-- shop -->
+<div id="shopPanel">
+  <div id="shopHeader">
+    <span class="shop-title">Shop</span>
+    <button id="shopClose" onclick="toggleShop()">✕</button>
+  </div>
+
+  <div class="shop-currency">
+    <span id="shopGold">🪙 Gold: 0</span>
+    <span id="shopPoints">✦ Points: 0</span>
+  </div>
+
+  <div class="shop-section">
+    <div class="shop-section-label">Spells</div>
+    <div id="shopSpells"></div>
+  </div>
+
+  <div class="history-divider"></div>
+
+  <div class="shop-section">
+    <div class="shop-section-label">Items</div>
+    <div id="shopItems"></div>
+  </div>
+</div>
+
 <!-- GUI Scaler -->
 <div id="guiScaler">
   <span class="scaler-label">UI Scale</span>

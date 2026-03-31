@@ -93,19 +93,29 @@ document.getElementById('drawTwoBtn').disabled = !isMyTurn || hasDrawnTwo
   updateHistory(gameState)
 document.getElementById('historyToggle').classList.add('visible')
 renderSpellbook(me.spellbook, isMyTurn)
+
+const shopToggle = document.getElementById('shopToggle')
+shopToggle.classList.add('visible')
+shopToggle.classList.toggle('disabled', !isMyTurn)
+updateShop(gameState)
 }
 
 // ---- Render hand ----
 const CARD_ICONS = {
   fire: '🔥', ice: '❄️', wax: '🕯️', stardust: '✨',
-  charge: '⚡', tome: '📖', firebolt: '🔥', shield: '🛡️'
+  charge: '⚡', tome: '📖', firebolt: '💥', shield: '🛡️',
+  cantrip: '🕯️', omniscience: '🌌', rush: '💨',
+  candle: '🕯️', match: '🔥', snow: '❄️', meteorite: '🌠'
 }
 
 const CARD_EFFECTS = {
   charge: '+1 Action point',
-  tome: 'Draw 2 cards',
-  firebolt: 'Deal 1 damage',
-  shield: 'Block 1 damage'
+  tome: 'Draw 3 cards',
+  firebolt: 'Deal 3 damage',
+  shield: '+2 Shield',
+  cantrip: 'Deal 1 damage (free)',
+  omniscience: '+3 Actions, Draw 6 cards',
+  rush: 'Draw 2 cards'
 }
 
 function renderHand(hand, isMyTurn) {
@@ -214,14 +224,14 @@ function onSpellClick(spellCard, hand) {
 function castSpell() {
   if (!selectedSpell || !currentState) return
 
-  // find the spell card object so we can animate it
   const me = currentState.players[myId]
-  const spellCard = me.hand.find(c => c.id === selectedSpell)
+  // look in spellbook not hand
+  const spellCard = me.spellbook.find(c => c.id === selectedSpell)
 
   socket.emit('playSpell', selectedSpell, selectedComponents)
-  
+
   if (spellCard) playCastAnimation(spellCard)
-  
+
   clearSelection()
 }
 // ---- Cast animation ----
@@ -308,7 +318,11 @@ function formatSpellName(spell) {
     charge: 'Charge',
     tome: 'Tome',
     firebolt: 'Firebolt',
-    shield: 'Shield'
+    shield: 'Shield',
+    cantrip: 'Cantrip',
+    omniscience: 'Omniscience',
+    rush: 'Rush',
+    dud: 'Dud'
   }
   return names[spell] ?? spell
 }
@@ -426,3 +440,86 @@ window.addEventListener('load', () => {
   document.getElementById('scaleSlider').value = saved
   applyScale(saved)
 })
+
+document.getElementById('myGold').textContent = `Gold: ${me.gold}`
+document.getElementById('myPoints').textContent = `Points: ${me.points}`
+
+// ---- Shop ----
+let shopOpen = false
+
+function toggleShop() {
+  shopOpen = !shopOpen
+  document.getElementById('shopPanel').classList.toggle('open', shopOpen)
+}
+
+function updateShop(gameState) {
+  if (!myId) return
+  const me = gameState.players[myId]
+  if (!me) return
+
+  // update currency display
+  document.getElementById('shopGold').textContent = `🪙 Gold: ${me.gold}`
+  document.getElementById('shopPoints').textContent = `✦ Points: ${me.points}`
+
+  const spellsEl = document.getElementById('shopSpells')
+  const itemsEl = document.getElementById('shopItems')
+  spellsEl.innerHTML = ''
+  itemsEl.innerHTML = ''
+
+  if (gameState.shop.length === 0) {
+    spellsEl.innerHTML = '<p style="font-style:italic;font-size:0.7rem;color:var(--base00)">Sold out</p>'
+    return
+  }
+
+  gameState.shop.forEach(card => {
+    const isMyTurn = gameState.currentTurn === myId
+    const isSpell = card.kind === 'spell'
+    const isItem = card.kind === 'item'
+
+    const canAfford = isSpell
+      ? me.points >= card.cost
+      : isItem
+        ? me.gold >= card.cost
+        : false
+
+    const div = document.createElement('div')
+    div.classList.add('shop-card')
+    if (!canAfford) div.classList.add('cant-afford')
+
+    const icon = isSpell
+      ? CARD_ICONS[card.spell]
+      : CARD_ICONS[card.item]
+
+    const name = isSpell
+      ? formatSpellName(card.spell)
+      : capitalize(card.item)
+
+    const effect = isSpell
+      ? (CARD_EFFECTS[card.spell] ?? '')
+      : `Adds ${card.item} to deck`
+
+    const costLabel = isSpell
+      ? `${card.cost} pts`
+      : `${card.cost} gold`
+
+    const costClass = isSpell ? 'points' : 'gold'
+
+    div.innerHTML = `
+      <div class="shop-card-icon">${icon}</div>
+      <div class="shop-card-info">
+        <div class="shop-card-name">${name}</div>
+        <div class="shop-card-effect">${effect}</div>
+      </div>
+      <div class="shop-card-cost ${costClass}">${costLabel}</div>
+    `
+
+    if (isMyTurn && canAfford) {
+      div.addEventListener('click', () => {
+        socket.emit('shopPurchase', card.id)
+      })
+    }
+
+    if (isSpell) spellsEl.appendChild(div)
+    else if (isItem) itemsEl.appendChild(div)
+  })
+}
