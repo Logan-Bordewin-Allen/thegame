@@ -55,6 +55,6 @@ server/
 └── package.json
 
 
-Look for **IPv4 Address** — something like `192.168.1.42`. Share this with the frontend dev so they can connect to your server over the same WiFi.
+Look for **IPv4 Address** — something like `192.168.1.42`.
 
 ---
