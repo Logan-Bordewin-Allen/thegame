@@ -56,5 +56,4 @@ server/
 
 
 Look for **IPv4 Address** — something like `192.168.1.42`.
-
----
+```
