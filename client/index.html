@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <!-- WAITING SCREEN -->
+  <div id="waitingScreen">
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+
+    <h1>The Game</h1>
+    <p class="subtitle">A card &amp; board adventure for two</p>
+
+    <div class="card-stack">
+      <div class="card"></div>
+      <div class="card"></div>
+      <div class="card"></div>
+    </div>
+
+    <div class="status-box">
+      <div class="status-label">Players</div>
+      <div class="player-slots">
+        <div class="slot">
+          <div class="slot-icon" id="slot1">○</div>
+          <div class="slot-label">Player 1</div>
+        </div>
+        <div class="slot-divider">vs</div>
+        <div class="slot">
+          <div class="slot-icon" id="slot2">○</div>
+          <div class="slot-label">Player 2</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="waiting-text">
+      Waiting for players<span class="dots"><span>.</span><span>.</span><span>.</span></span>
+    </p>
+
+    <div class="rule rule-bottom">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- GAME SCREEN -->
+  <div id="gameScreen">
+
+    <!-- Opponent's last played card -->
+    <div id="opponentPlayed">
+      <div class="opponent-played-label">Opponent played</div>
+      <div class="opponent-played-card">
+        <div class="opponent-played-icon" id="opponentPlayedIcon"></div>
+        <div class="opponent-played-name" id="opponentPlayedName"></div>
+      </div>
+    </div>
+
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+
+    <!-- Stats -->
+    <div id="gameInfo">
+      <div class="stat-block">
+        <span class="stat-label">Your HP</span>
+        <span class="stat-value" id="myHp">10</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-label">Shield</span>
+        <span class="stat-value" id="myShield">0</span>
+      </div>
+      <span id="turnIndicator">Waiting...</span>
+      <div class="stat-block">
+        <span class="stat-label">Their HP</span>
+        <span class="stat-value" id="oppHp">10</span>
+      </div>
+      <div class="stat-block">
+        <span class="stat-label">Shield</span>
+        <span class="stat-value" id="oppShield">0</span>
+      </div>
+
+        <div class="stat-block">
+            <span class="stat-label">Gold</span>
+            <span class="stat-value" id="myGold">0</span>
+            </div>
+        <div class="stat-block">
+            <span class="stat-label">Points</span>
+            <span class="stat-value" id="myPoints">0</span>
+        </div>
+    </div>
+
+    <p id="actionPoints">Actions: 0</p>
+
+    <!-- Buttons -->
+    <div id="buttonRow">
+      <button id="drawTwoBtn" onclick="drawTwo()">Draw 2</button>
+      <button id="endTurnBtn" onclick="endTurn()">End Turn</button>
+    </div>
+
+    <!-- Cast button (shown when spell selected) -->
+    <button id="castBtn" onclick="castSpell()">Cast Spell</button>
+    <!-- spell book-->
+    <div id="spellbook"></div>
+    <!-- Hand -->
+    <div id="hand"></div>
+
+  </div>
+
+  <!-- GAME OVER SCREEN -->
+  <div id="gameOverScreen">
+    <div class="rule">
+      <span></span>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <div class="rule-diamond"></div>
+      <span></span>
+    </div>
+    <p class="game-banner" id="gameOverText">Game Over</p>
+    <p class="game-sub" id="gameOverSub"></p>
+  </div>
+
+</div>
+
+<!-- Cast animation (outside container, fixed position) -->
+<div id="castAnimation">
+  <div class="cast-card">
+    <div class="cast-card-icon" id="castAnimIcon"></div>
+    <div class="cast-card-name" id="castAnimName"></div>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="main.js"></script>
+<!-- right panel -->
+<div id="historyToggle" onclick="toggleHistory()">☰ Log</div>
+<div id="shopToggle" onclick="toggleShop()">🛒Shop</div>
+
+<!-- history pannel thing -->
+<div id="historyPanel">
+  <div id="historyHeader">
+    <span class="history-title">Play History</span>
+    <button id="historyClose" onclick="toggleHistory()">✕</button>
+  </div>
+
+  <div class="history-section">
+    <div class="history-section-label">You</div>
+    <ul id="myHistory"></ul>
+  </div>
+
+  <div class="history-divider"></div>
+
+  <div class="history-section">
+    <div class="history-section-label">Opponent</div>
+    <ul id="oppHistory"></ul>
+  </div>
+</div>
+
+<!-- shop -->
+<div id="shopPanel">
+  <div id="shopHeader">
+    <span class="shop-title">Shop</span>
+    <button id="shopClose" onclick="toggleShop()">✕</button>
+  </div>
+
+  <div class="shop-currency">
+    <span id="shopGold">🪙 Gold: 0</span>
+    <span id="shopPoints">✦ Points: 0</span>
+  </div>
+
+  <div class="shop-section">
+    <div class="shop-section-label">Spells</div>
+    <div id="shopSpells"></div>
+  </div>
+
+  <div class="history-divider"></div>
+
+  <div class="shop-section">
+    <div class="shop-section-label">Items</div>
+    <div id="shopItems"></div>
+  </div>
+</div>
+
+<!-- GUI Scaler -->
+<div id="guiScaler">
+  <span class="scaler-label">UI Scale</span>
+  <input type="range" id="scaleSlider" min="70" max="130" value="100" step="5"
+    oninput="applyScale(this.value)">
+  <span id="scaleValue">100%</span>
+</div>
+
+</body>
+</html>
